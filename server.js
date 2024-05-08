@@ -98,7 +98,7 @@ db.once('open', () => {
     console.log('MongoDB connected');
 });
 
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
     console.log(`PORT: ${PORT}`);
 });
