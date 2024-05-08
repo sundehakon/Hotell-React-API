@@ -41,15 +41,9 @@ const Comment = mongoose.model('Comment', commentSchema);
         }
     });
     
-    app.get('/api/userProfile/:userId', async (req, res) => {
-        try {
-            const user = await management.getUser({ id: req.params.userId });
-            res.status(200).json(user.picture);
-        } catch (error) {
-            console.error('Error fetching user profile:', error);
-            res.status(500).json({ error: 'Internal server error'});
-        }
-    })
+    app.get('/', (req, res) => {
+        res.send('Welcome to my API!');
+    });    
     
     app.get('/api/allUsers', async (req, res) => {
         try {
