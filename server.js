@@ -88,6 +88,17 @@ const Comment = mongoose.model('Comment', commentSchema);
         }
     });
 
+    app.delete('/api/Comments/:id', async (req, res) => {
+        const { id } = req.params;
+
+        try {
+            await Comment.deleteOne({ _id: id });
+            res.status(200).json({ id });
+        } catch (error) {
+            res.status(500).json({ error: 'Internal server error' });
+        }
+    });
+
 db.once('open', () => {
     console.log('MongoDB connected');
 });
