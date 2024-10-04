@@ -31,7 +31,7 @@ const commentSchema = new mongoose.Schema({
 const Post = mongoose.model('Post', postSchema);
 const Comment = mongoose.model('Comment', commentSchema);
 
-    app.get('/api/Blogs', async (req, res) => {
+    app.get('/Blogs', async (req, res) => {
         try {
             const blogs = await Post.find();
             res.status(200).json(blogs);
@@ -44,21 +44,8 @@ const Comment = mongoose.model('Comment', commentSchema);
     app.get('/', (req, res) => {
         res.send('Welcome to my API!');
     });    
-    
-    app.get('/api/allUsers', async (req, res) => {
-        try {
-          const users = await management.getUsers({ fields: 'email,name,picture', include_fields: true });
-          users.forEach(user => {
-            console.log(user.email);
-          });
-          res.status(200).json(users);
-        } catch (error) {
-          console.error('Error fetching users:', error);
-          res.status(500).json({ error: 'Internal server error' });
-        }
-      });
 
-    app.get('/api/Comments', async (req, res) => {
+    app.get('/Comments', async (req, res) => {
         try {
             const comments = await Comment.find();
             res.status(200).json(comments);
@@ -68,7 +55,7 @@ const Comment = mongoose.model('Comment', commentSchema);
         }
     });
 
-    app.post('/api/Comments', async (req, res) => {
+    app.post('/Comments', async (req, res) => {
         const { postId, userId, userPicture, userName, content, date } = req.body;
 
         const comment = new Comment({
@@ -88,7 +75,7 @@ const Comment = mongoose.model('Comment', commentSchema);
         }
     });
 
-    app.delete('/api/Comments/:id', async (req, res) => {
+    app.delete('/Comments/:id', async (req, res) => {
         const { id } = req.params;
 
         try {
@@ -103,7 +90,7 @@ db.once('open', () => {
     console.log('MongoDB connected');
 });
 
-const PORT = process.env.PORT || 10000;
+const PORT = process.env.PORT || 1000;
 app.listen(PORT, () => {
     console.log(`PORT: ${PORT}`);
 });
