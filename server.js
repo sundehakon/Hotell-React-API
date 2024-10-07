@@ -6,6 +6,7 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const app = express();
 const axios = require('axios');
+
 app.use(cors());
 app.use(bodyParser.json()); 
 
@@ -31,60 +32,48 @@ const commentSchema = new mongoose.Schema({
 const Post = mongoose.model('Post', postSchema);
 const Comment = mongoose.model('Comment', commentSchema);
 
-    app.get('/Blogs', async (req, res) => {
-        try {
-            const blogs = await Post.find();
-            res.status(200).json(blogs);
-        } catch (error) {
-            console.error('Error fetching post:', error);
-            res.status(500).json({ error: 'Internal server error' });
-        }
-    });
-    
-    app.get('/', (req, res) => {
-        res.send('Welcome to my API!');
-    });    
+app.get('/Blogs', async (req, res) => {
+    try {
+        const blogs = await Post.find();
+        res.status(200).json(blogs);
+    } catch (error) {
+        console.error('Error fetching post:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
 
-    app.get('/Comments', async (req, res) => {
-        try {
-            const comments = await Comment.find();
-            res.status(200).json(comments);
-        } catch (error) {
-            console.error('Error fetching comments:', error);
-            res.status(500).json({ error: 'Internal server error' });
-        }
+app.post('/Blogs', async (req, res) => {
+    const { title, author, content, date } = req.body;
+
+    const newPost = new Post({
+        title,
+        author,
+        content,
+        date,
     });
 
-    app.post('/Comments', async (req, res) => {
-        const { postId, userId, userPicture, userName, content, date } = req.body;
+    try {
+        const savedPost = await newPost.save();
+        res.status(201).json(savedPost);
+    } catch (error) {
+        console.error('Error saving post:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
 
-        const comment = new Comment({
-            postId,
-            userId,
-            userName,
-            userPicture,
-            content,
-            date,
-        });
+app.get('/', (req, res) => {
+    res.send('Welcome to my API!');
+});    
 
-        try {
-            const savedComment = await comment.save();
-            res.status(200).json(savedComment);
-        } catch (error) {
-            res.status(500).json({ error: 'Internal server error' });
-        }
-    });
-
-    app.delete('/Comments/:id', async (req, res) => {
-        const { id } = req.params;
-
-        try {
-            await Comment.deleteOne({ _id: id });
-            res.status(200).json({ id });
-        } catch (error) {
-            res.status(500).json({ error: 'Internal server error' });
-        }
-    });
+app.get('/Comments', async (req, res) => {
+    try {
+        const comments = await Comment.find();
+        res.status(200).json(comments);
+    } catch (error) {
+        console.error('Error fetching comments:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
 
 db.once('open', () => {
     console.log('MongoDB connected');
