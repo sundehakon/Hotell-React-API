@@ -4,11 +4,12 @@ const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-const app = express();
-const axios = require('axios');
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 
+const app = express();
 app.use(cors());
-app.use(bodyParser.json()); 
+app.use(bodyParser.json());
 
 mongoose.connect(process.env.MONGO_URI, {});
 const db = mongoose.connection;
@@ -29,10 +30,51 @@ const commentSchema = new mongoose.Schema({
     date: String,
 }, { collection: 'Comments' });
 
+const User = mongoose.model('User', new mongoose.Schema({
+    username: { type: String, unique: true },
+    password: String,
+}));
+
 const Post = mongoose.model('Post', postSchema);
 const Comment = mongoose.model('Comment', commentSchema);
 
-app.get('/Blogs', async (req, res) => {
+const authenticateToken = (req, res, next) => {
+    const token = req.headers['authorization']?.split(' ')[1];
+    if (!token) return res.sendStatus(401);
+    
+    jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+        if (err) return res.sendStatus(403);
+        req.user = user; 
+        next();
+    });
+};
+
+app.post('/register', async (req, res) => {
+    const { username, password } = req.body;
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const user = new User({ username, password: hashedPassword });
+    try {
+        await user.save();
+        res.status(201).send('User registered');
+    } catch (error) {
+        res.status(500).send('Error registering user');
+    }
+});
+
+app.post('/login', async (req, res) => {
+    const { username, password } = req.body;
+    const user = await User.findOne({ username });
+
+    if (user && await bcrypt.compare(password, user.password)) {
+        const token = jwt.sign({ username: user.username }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        return res.json({ token });
+    }
+
+    res.status(401).send('Invalid credentials');
+});
+
+app.get('/Blogs', authenticateToken, async (req, res) => {
     try {
         const blogs = await Post.find();
         res.status(200).json(blogs);
@@ -42,7 +84,7 @@ app.get('/Blogs', async (req, res) => {
     }
 });
 
-app.post('/Blogs', async (req, res) => {
+app.post('/Blogs', authenticateToken, async (req, res) => {
     const { title, author, content, date } = req.body;
 
     const newPost = new Post({
