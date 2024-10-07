@@ -4,8 +4,7 @@ const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
+const basicAuth = require('express-basic-auth');
 
 const app = express();
 app.use(cors());
@@ -33,28 +32,23 @@ const commentSchema = new mongoose.Schema({
 const Post = mongoose.model('Post', postSchema);
 const Comment = mongoose.model('Comment', commentSchema);
 
-const authenticateToken = (req, res, next) => {
-    const token = req.headers['authorization']?.split(' ')[1];
-    if (!token) return res.sendStatus(401); 
-
-    jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-        if (err) return res.sendStatus(403); 
-        req.user = user; 
-        next(); 
-    });
-};
+const authMiddleware = basicAuth({
+    users: { [process.env.USERNAME]: process.env.PASSWORD }, 
+    challenge: true,
+    unauthorizedResponse: 'Unauthorized'
+});
 
 app.get('/Blogs', async (req, res) => {
     try {
         const blogs = await Post.find();
         res.status(200).json(blogs);
     } catch (error) {
-        console.error('Error fetching post:', error);
+        console.error('Error fetching posts:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
 });
 
-app.post('/Blogs', authenticateToken, async (req, res) => {
+app.post('/Blogs', authMiddleware, async (req, res) => {
     const { title, author, content, date } = req.body;
 
     const newPost = new Post({
