@@ -95,7 +95,7 @@ app.get('/Comments', async (req, res) => {
 });
 
 app.get('/', (req, res) => {
-    res.send('API up and running!');
+    res.send('API up and running! Check out GitHub repo for instructions: https://github.com/sundehakon/PortfolioAPI');
 });
 
 db.once('open', () => {
