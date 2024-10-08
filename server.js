@@ -48,6 +48,16 @@ app.get('/Blogs', async (req, res) => {
     }
 });
 
+app.get('/Comments', async (req, res) => {
+    try {
+        const comments = await Comment.find();
+        res.status(200).json(comments);
+    } catch (error) {
+        console.error('Error fetching comments:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
 app.post('/Blogs', authMiddleware, async (req, res) => {
     const { title, author, content, date } = req.body;
 
@@ -63,6 +73,28 @@ app.post('/Blogs', authMiddleware, async (req, res) => {
         res.status(201).json(savedPost);
     } catch (error) {
         console.error('Error saving post:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+app.post('/Comments', async (req, res) => {
+    const { postId, userId, userPicture, userName, content, date } = req.body;
+
+    const newComment = new Comment({
+        postId,
+        userId,
+        userPicture,
+        userName,
+        content,
+        date,
+    });
+
+    try {
+        const savedComment = await newComment.save();
+        res.status(201).json(savedComment);
+    }
+    catch (error) {
+        console.error('Error saving comment:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
 });
@@ -95,7 +127,7 @@ app.get('/Comments', async (req, res) => {
 });
 
 app.get('/', (req, res) => {
-    res.send('API up and running! Check out GitHub repo for instructions: https://github.com/sundehakon/PortfolioAPI');
+    res.send('API up and running!');
 });
 
 db.once('open', () => {
