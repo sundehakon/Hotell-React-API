@@ -21,10 +21,10 @@ const postSchema = new mongoose.Schema({
 }, { collection: 'Blogs' });
 
 const commentSchema = new mongoose.Schema({
-    postId: String,
-    userId: String,
-    userPicture: String,
-    userName: String,
+    post_id: String,
+    user_id: String,
+    user_name: String,
+    user_picture: String,
     content: String,
     date: String,
 }, { collection: 'Comments' });
