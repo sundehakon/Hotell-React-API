@@ -7,7 +7,7 @@
 > https://api.sundehakon.tech/Blogs
 
 This link allows GET requests for displaying blog posts on other platforms
-PS. POST requests are locked behind an auth wall. If you wish to make changes to blogs etc. contact me at hakon.su@gmail.com
+PS. POST requests are locked only open to users with correct permissions. If you wish to make changes to blogs etc. contact me at hakon.su@gmail.com
 
 ***OUT NOW***
 > https://api.sundehakon.tech/Comments
