@@ -78,7 +78,7 @@ app.post('/Blogs', authMiddleware, async (req, res) => {
 });
 
 app.post('/Comments', async (req, res) => {
-    const { postId, userId, userPicture, userName, content, date } = req.body;
+    const { post_id, user_id, user_picture, user_name, content, date } = req.body;
 
     const newComment = new Comment({
         post_id,
