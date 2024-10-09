@@ -81,10 +81,10 @@ app.post('/Comments', async (req, res) => {
     const { postId, userId, userPicture, userName, content, date } = req.body;
 
     const newComment = new Comment({
-        postId,
-        userId,
-        userPicture,
-        userName,
+        post_id,
+        user_id,
+        user_picture,
+        user_name,
         content,
         date,
     });
