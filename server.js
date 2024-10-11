@@ -19,6 +19,7 @@ const postSchema = new mongoose.Schema({
     content: String,
     date: String,
     upvotes: { type: Number, default: 0 },
+    upvoters: { type: [String], default: [] },
 }, { collection: 'Blogs' });
 
 const commentSchema = new mongoose.Schema({
@@ -51,19 +52,25 @@ app.get('/Blogs', async (req, res) => {
 
 app.put('/Blogs/:id/upvote', async (req, res) => {
     const { id } = req.params;
+    const userId = req.body.user_id; 
 
     try {
-        const updatedPost = await Post.findByIdAndUpdate(
-            id, 
-            { $inc: { upvotes: 1 } },
-            { new: true } 
-        );
+        const post = await Post.findById(id);
 
-        if (!updatedPost) {
+        if (!post) {
             return res.status(404).json({ message: 'Blog post not found' });
         }
 
-        res.status(200).json(updatedPost); 
+        if (post.upvoters.includes(userId)) {
+            return res.status(400).json({ message: 'You have already upvoted this post' });
+        }
+
+        post.upvoters.push(userId);
+        post.upvotes += 1;
+
+        const updatedPost = await post.save();
+
+        res.status(200).json(updatedPost);
     } catch (error) {
         console.error('Error updating upvotes:', error);
         res.status(500).json({ error: 'Internal server error' });
