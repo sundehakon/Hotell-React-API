@@ -18,6 +18,7 @@ const postSchema = new mongoose.Schema({
     author: String,
     content: String,
     date: String,
+    upvotes: { type: Number, default: 0 },
 }, { collection: 'Blogs' });
 
 const commentSchema = new mongoose.Schema({
@@ -47,6 +48,28 @@ app.get('/Blogs', async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 });
+
+app.put('/Blogs/:id/upvote', async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const updatedPost = await Post.findByIdAndUpdate(
+            id, 
+            { $inc: { upvotes: 1 } },
+            { new: true } 
+        );
+
+        if (!updatedPost) {
+            return res.status(404).json({ message: 'Blog post not found' });
+        }
+
+        res.status(200).json(updatedPost); 
+    } catch (error) {
+        console.error('Error updating upvotes:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
 
 app.get('/Comments', async (req, res) => {
     try {
